@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"github.com/ivangurin/tinvest-client-go"
 	"github.com/ivangurin/tinvest-analyser-go"
+	"strings"
 	"time"
 )
 
@@ -39,17 +40,21 @@ func returnPositions(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 		return
 	}
 
-	ioResponse.Header().Add("Content-Type", "application/json; charset=UTF-8")
-
-	var lvJsonBytes []byte
-
-	if len(ltPositions) > 0{
-		lvJsonBytes, _ = json.Marshal(ltPositions)
-	}else {
-		lvJsonBytes = []byte("[]")
+	if len(ltPositions) == 0 {
+		ltPositions = make([]tinvestclient.Position, 0)
 	}
 
-	ioResponse.Write(lvJsonBytes)
+	lvBody, loError := json.Marshal(ltPositions)
+
+	if loError != nil {
+		ioResponse.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(ioResponse, "%v", loError)
+		return
+	}
+
+	ioResponse.Header().Add("Content-Type", "application/json; charset=UTF-8")
+
+	ioResponse.Write(lvBody)
 
 }
 
@@ -62,9 +67,15 @@ func returnProfit(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 		return
 	}
 
-	lvTicker := ioRequest.URL.Query().Get("ticker")
+	loParameters := mux.Vars(ioRequest)
 
-	fmt.Println(lvTicker)
+	ltTickers := strings.Split(loParameters["ticker"], ",")
+
+	lvTicker := ""
+
+	if len(ltTickers) > 0 {
+		lvTicker = ltTickers[0]
+	}
 
 	loAnalyzer := tinvestanalyser.Analyser{}
 
@@ -80,15 +91,64 @@ func returnProfit(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 
 	ioResponse.Header().Add("Content-Type", "application/json; charset=UTF-8")
 
-	var lvJsonBytes []byte
-
-	if len(ltProfit) > 0{
-		lvJsonBytes, _ = json.Marshal(ltProfit)
-	}else {
-		lvJsonBytes = []byte("[]")
+	if len(ltProfit) == 0 {
+		ltProfit = make([]tinvestanalyser.Profit, 0)
 	}
 
-	ioResponse.Write(lvJsonBytes)
+	lvBody, loError := json.Marshal(ltProfit)
+
+	if loError != nil {
+		ioResponse.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(ioResponse, "%v", loError)
+		return
+	}
+
+	ioResponse.Header().Add("Content-Type", "application/json; charset=UTF-8")
+
+	ioResponse.Write(lvBody)
+
+}
+
+func returnSignal(ioResponse http.ResponseWriter, ioRequest *http.Request) {
+
+	lvBearerToken := ioRequest.Header.Get("Authorization")
+
+	if lvBearerToken == "" {
+		ioResponse.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	loParameters := mux.Vars(ioRequest)
+
+	ltTickers := strings.Split(loParameters["ticker"], ",")
+
+	loAnalyzer := tinvestanalyser.Analyser{}
+
+	loAnalyzer.Init(lvBearerToken[7:])
+
+	ltSignals, loError := loAnalyzer.GetSignals(ltTickers)
+
+	if loError != nil {
+		ioResponse.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(ioResponse, "%v", loError)
+		return
+	}
+
+	if len(ltSignals) == 0 {
+		ltSignals = make([]tinvestanalyser.Signal, 0)
+	}
+
+	lvBody, loError := json.Marshal(ltSignals)
+
+	if loError != nil {
+		ioResponse.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(ioResponse, "%v", loError)
+		return
+	}
+
+	ioResponse.Header().Add("Content-Type", "application/json; charset=UTF-8")
+
+	ioResponse.Write(lvBody)
 
 }
 
@@ -98,7 +158,9 @@ func main() {
 
 	loRouter.HandleFunc("/", returnRoot).Methods("GET")
 	loRouter.HandleFunc("/positions", returnPositions).Methods("GET")
+	loRouter.HandleFunc("/profit/{ticker}", returnProfit).Methods("GET")
 	loRouter.HandleFunc("/profit", returnProfit).Methods("GET")
+	loRouter.HandleFunc("/signal/{ticker}", returnSignal).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(":8081", loRouter))
 
