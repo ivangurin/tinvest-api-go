@@ -20,11 +20,14 @@ func returnRoot(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 
 func returnPositions(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 
+	fmt.Print("\n", time.Now().Format(time.RFC3339), " Positions were requested - ")
+
 	lvBearerToken := ioRequest.Header.Get("Authorization")
 
 	if lvBearerToken == "" {
 		ioResponse.WriteHeader(http.StatusUnauthorized)
 		fmt.Fprint(ioResponse, http.StatusText(http.StatusUnauthorized))
+		fmt.Print(http.StatusText(http.StatusUnauthorized))
 		return
 	}
 
@@ -37,6 +40,7 @@ func returnPositions(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 	if loError != nil {
 		ioResponse.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(ioResponse, "%v", loError)
+		fmt.Print(loError)
 		return
 	}
 
@@ -49,6 +53,7 @@ func returnPositions(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 	if loError != nil {
 		ioResponse.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(ioResponse, "%v", loError)
+		fmt.Print(loError)
 		return
 	}
 
@@ -56,14 +61,19 @@ func returnPositions(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 
 	ioResponse.Write(lvBody)
 
+	fmt.Print("OK")
+
 }
 
 func returnProfit(ioResponse http.ResponseWriter, ioRequest *http.Request) {
+
+	fmt.Print("\n", time.Now().Format(time.RFC3339), " Profit was requested - ")
 
 	lvBearerToken := ioRequest.Header.Get("Authorization")
 
 	if lvBearerToken == "" {
 		ioResponse.WriteHeader(http.StatusUnauthorized)
+		fmt.Print(http.StatusText(http.StatusUnauthorized))
 		return
 	}
 
@@ -86,6 +96,7 @@ func returnProfit(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 	if loError != nil {
 		ioResponse.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(ioResponse, "%v", loError)
+		fmt.Print(loError)
 		return
 	}
 
@@ -100,6 +111,7 @@ func returnProfit(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 	if loError != nil {
 		ioResponse.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(ioResponse, "%v", loError)
+		fmt.Print(loError)
 		return
 	}
 
@@ -107,14 +119,19 @@ func returnProfit(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 
 	ioResponse.Write(lvBody)
 
+	fmt.Print("OK")
+
 }
 
 func returnSignal(ioResponse http.ResponseWriter, ioRequest *http.Request) {
+
+	fmt.Print("\n", time.Now().Format(time.RFC3339), " Signal was requested - ")
 
 	lvBearerToken := ioRequest.Header.Get("Authorization")
 
 	if lvBearerToken == "" {
 		ioResponse.WriteHeader(http.StatusUnauthorized)
+		fmt.Print(http.StatusText(http.StatusUnauthorized))
 		return
 	}
 
@@ -131,6 +148,7 @@ func returnSignal(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 	if loError != nil {
 		ioResponse.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(ioResponse, "%v", loError)
+		fmt.Print(loError)
 		return
 	}
 
@@ -143,12 +161,15 @@ func returnSignal(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 	if loError != nil {
 		ioResponse.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(ioResponse, "%v", loError)
+		fmt.Print(loError)
 		return
 	}
 
 	ioResponse.Header().Add("Content-Type", "application/json; charset=UTF-8")
 
 	ioResponse.Write(lvBody)
+
+	fmt.Print("OK")
 
 }
 
