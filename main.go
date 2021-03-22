@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/ivangurin/tinvest-analyser-go"
+	"github.com/ivangurin/tinvest-client-go"
 	"log"
 	"net/http"
-	"github.com/ivangurin/tinvest-client-go"
-	"github.com/ivangurin/tinvest-analyser-go"
 	"strings"
 	"time"
 )
@@ -20,7 +20,15 @@ func returnRoot(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 
 func returnPositions(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 
-	fmt.Print("\n", time.Now().Format(time.RFC3339), " Positions were requested - ")
+	fmt.Print("\n", time.Now().Format(time.RFC3339), ioRequest.Method, " Positions were requested - ")
+
+	ioResponse.Header().Add("Access-Control-Allow-Origin", "*")
+	ioResponse.Header().Add("Access-Control-Allow-Methods", "*")
+	ioResponse.Header().Add("Access-Control-Allow-Headers", "*")
+
+	if ioRequest.Method == http.MethodOptions {
+		return
+	}
 
 	lvBearerToken := ioRequest.Header.Get("Authorization")
 
@@ -57,7 +65,7 @@ func returnPositions(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 		return
 	}
 
-	ioResponse.Header().Add("Content-Type", "application/json; charset=UTF-8")
+	ioResponse.Header().Add("Content-Type", "application/json; charset=utf-8")
 
 	ioResponse.Write(lvBody)
 
@@ -67,7 +75,15 @@ func returnPositions(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 
 func returnProfit(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 
-	fmt.Print("\n", time.Now().Format(time.RFC3339), " Profit was requested - ")
+	fmt.Print("\n", time.Now().Format(time.RFC3339), ioRequest.Method, " Profit was requested - ")
+
+	ioResponse.Header().Add("Access-Control-Allow-Origin", "*")
+	ioResponse.Header().Add("Access-Control-Allow-Methods", "*")
+	ioResponse.Header().Add("Access-Control-Allow-Headers", "*")
+
+	if ioRequest.Method == http.MethodOptions {
+		return
+	}
 
 	lvBearerToken := ioRequest.Header.Get("Authorization")
 
@@ -100,7 +116,7 @@ func returnProfit(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 		return
 	}
 
-	ioResponse.Header().Add("Content-Type", "application/json; charset=UTF-8")
+	ioResponse.Header().Add("Access-Control-Allow-Origin", "true")
 
 	if len(ltProfit) == 0 {
 		ltProfit = make([]tinvestanalyser.Profit, 0)
@@ -115,7 +131,7 @@ func returnProfit(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 		return
 	}
 
-	ioResponse.Header().Add("Content-Type", "application/json; charset=UTF-8")
+	ioResponse.Header().Add("Content-Type", "application/json; charset=utf-8")
 
 	ioResponse.Write(lvBody)
 
@@ -125,7 +141,15 @@ func returnProfit(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 
 func returnSignal(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 
-	fmt.Print("\n", time.Now().Format(time.RFC3339), " Signal was requested - ")
+	fmt.Print("\n", time.Now().Format(time.RFC3339), ioRequest.Method, " Signal was requested - ")
+
+	ioResponse.Header().Add("Access-Control-Allow-Origin", "*")
+	ioResponse.Header().Add("Access-Control-Allow-Methods", "*")
+	ioResponse.Header().Add("Access-Control-Allow-Headers", "*")
+
+	if ioRequest.Method == http.MethodOptions {
+		return
+	}
 
 	lvBearerToken := ioRequest.Header.Get("Authorization")
 
@@ -165,7 +189,7 @@ func returnSignal(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 		return
 	}
 
-	ioResponse.Header().Add("Content-Type", "application/json; charset=UTF-8")
+	ioResponse.Header().Add("Content-Type", "application/json; charset=utf-8")
 
 	ioResponse.Write(lvBody)
 
@@ -177,11 +201,10 @@ func main() {
 
 	loRouter := mux.NewRouter()
 
-	loRouter.HandleFunc("/", returnRoot).Methods("GET")
-	loRouter.HandleFunc("/positions", returnPositions).Methods("GET")
-	loRouter.HandleFunc("/profit/{ticker}", returnProfit).Methods("GET")
-	loRouter.HandleFunc("/profit", returnProfit).Methods("GET")
-	loRouter.HandleFunc("/signal/{ticker}", returnSignal).Methods("GET")
+	loRouter.HandleFunc("/", returnRoot).Methods(http.MethodGet)
+	loRouter.HandleFunc("/positions", returnPositions).Methods(http.MethodGet, http.MethodOptions)
+	loRouter.HandleFunc("/profit", returnProfit).Methods(http.MethodGet, http.MethodOptions)
+	loRouter.HandleFunc("/signal/{ticker}", returnSignal).Methods(http.MethodGet, http.MethodOptions)
 
 	log.Fatal(http.ListenAndServe(":8081", loRouter))
 
