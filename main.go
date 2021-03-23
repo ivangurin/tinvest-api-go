@@ -2,25 +2,28 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/ivangurin/tinvest-analyser-go"
 	"github.com/ivangurin/tinvest-client-go"
 	"log"
 	"net/http"
-	"strings"
+	"net/url"
 	"time"
 )
 
 func returnRoot(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 
-	ioResponse.WriteHeader(http.StatusBadRequest)
+	lvBody := "API for Tinkoff Analyser. See more at https://github.com/ivangurin/tinvest-service-go"
+
+	ioResponse.Write([]byte(lvBody))
 
 }
 
 func returnPositions(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 
-	fmt.Print("\n", time.Now().Format(time.RFC3339), ioRequest.Method, " Positions were requested - ")
+	fmt.Print("\n", time.Now().Format(time.RFC3339), " ", ioRequest.URL.Path, " - ")
 
 	ioResponse.Header().Add("Access-Control-Allow-Origin", "*")
 	ioResponse.Header().Add("Access-Control-Allow-Methods", "*")
@@ -35,7 +38,7 @@ func returnPositions(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 	if lvBearerToken == "" {
 		ioResponse.WriteHeader(http.StatusUnauthorized)
 		fmt.Fprint(ioResponse, http.StatusText(http.StatusUnauthorized))
-		fmt.Print(http.StatusText(http.StatusUnauthorized))
+		fmt.Println(http.StatusText(http.StatusUnauthorized))
 		return
 	}
 
@@ -48,7 +51,7 @@ func returnPositions(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 	if loError != nil {
 		ioResponse.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(ioResponse, "%v", loError)
-		fmt.Print(loError)
+		fmt.Println(loError)
 		return
 	}
 
@@ -61,7 +64,7 @@ func returnPositions(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 	if loError != nil {
 		ioResponse.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(ioResponse, "%v", loError)
-		fmt.Print(loError)
+		fmt.Println(loError)
 		return
 	}
 
@@ -73,9 +76,9 @@ func returnPositions(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 
 }
 
-func returnProfit(ioResponse http.ResponseWriter, ioRequest *http.Request) {
+func returnOperations(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 
-	fmt.Print("\n", time.Now().Format(time.RFC3339), ioRequest.Method, " Profit was requested - ")
+	fmt.Print("\n", time.Now().Format(time.RFC3339), " ", ioRequest.URL.Path, "/", ioRequest.URL.RawQuery, " - ")
 
 	ioResponse.Header().Add("Access-Control-Allow-Origin", "*")
 	ioResponse.Header().Add("Access-Control-Allow-Methods", "*")
@@ -89,18 +92,104 @@ func returnProfit(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 
 	if lvBearerToken == "" {
 		ioResponse.WriteHeader(http.StatusUnauthorized)
-		fmt.Print(http.StatusText(http.StatusUnauthorized))
+		fmt.Fprint(ioResponse, http.StatusText(http.StatusUnauthorized))
+		fmt.Println(http.StatusText(http.StatusUnauthorized))
 		return
 	}
 
-	loParameters := mux.Vars(ioRequest)
+	ltVars := mux.Vars(ioRequest)
 
-	ltTickers := strings.Split(loParameters["ticker"], ",")
+	lvTicker := ltVars["ticker"]
+
+	if lvTicker == ""{
+		loError := errors.New("ticker is missing")
+		ioResponse.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(ioResponse, "%v", loError)
+		fmt.Println(loError)
+		return
+	}
+
+	loClient := tinvestclient.Client{}
+
+	loClient.Init(lvBearerToken[7:])
+
+	lsInstrument, loError := loClient.GetInstrumentByTicker(lvTicker)
+
+	if loError != nil {
+		loError := errors.New("instrument not found")
+		ioResponse.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(ioResponse, "%v", loError)
+		fmt.Println(loError)
+		return
+	}
+
+	ltOperations, loError := loClient.GetOperations(lsInstrument.FIGI, time.Now().AddDate(-10, 0, 0), time.Now())
+
+	if loError != nil {
+		ioResponse.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(ioResponse, "%v", loError)
+		fmt.Println(loError)
+		return
+	}
+
+	if len(ltOperations) == 0 {
+		ltOperations = make([]tinvestclient.Operation, 0)
+	}
+
+	lvBody, loError := json.Marshal(ltOperations)
+
+	if loError != nil {
+		ioResponse.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(ioResponse, "%v", loError)
+		fmt.Println(loError)
+		return
+	}
+
+	ioResponse.Header().Add("Content-Type", "application/json; charset=utf-8")
+
+	ioResponse.Write(lvBody)
+
+	fmt.Println("OK")
+
+}
+
+func returnProfit(ioResponse http.ResponseWriter, ioRequest *http.Request) {
+
+	fmt.Print("\n", time.Now().Format(time.RFC3339), " ", ioRequest.URL.Path, " - ")
+
+	ioResponse.Header().Add("Access-Control-Allow-Origin", "*")
+	ioResponse.Header().Add("Access-Control-Allow-Methods", "*")
+	ioResponse.Header().Add("Access-Control-Allow-Headers", "*")
+
+	if ioRequest.Method == http.MethodOptions {
+		return
+	}
+
+	lvBearerToken := ioRequest.Header.Get("Authorization")
+
+	if lvBearerToken == "" {
+		ioResponse.WriteHeader(http.StatusUnauthorized)
+		fmt.Println(http.StatusText(http.StatusUnauthorized))
+		return
+	}
+
+	loParameters, loError := url.ParseQuery(ioRequest.URL.RawQuery)
+
+	if loError != nil {
+		ioResponse.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(ioResponse, "%v", loError)
+		fmt.Println(loError)
+		return
+	}
 
 	lvTicker := ""
 
-	if len(ltTickers) > 0 {
-		lvTicker = ltTickers[0]
+	ltTickers, lvExists := loParameters["ticker"]
+
+	if lvExists{
+		if len(ltTickers) > 0 {
+			lvTicker = ltTickers[0]
+		}
 	}
 
 	loAnalyzer := tinvestanalyser.Analyser{}
@@ -112,11 +201,9 @@ func returnProfit(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 	if loError != nil {
 		ioResponse.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(ioResponse, "%v", loError)
-		fmt.Print(loError)
+		fmt.Println(loError)
 		return
 	}
-
-	ioResponse.Header().Add("Access-Control-Allow-Origin", "true")
 
 	if len(ltProfit) == 0 {
 		ltProfit = make([]tinvestanalyser.Profit, 0)
@@ -127,65 +214,7 @@ func returnProfit(ioResponse http.ResponseWriter, ioRequest *http.Request) {
 	if loError != nil {
 		ioResponse.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(ioResponse, "%v", loError)
-		fmt.Print(loError)
-		return
-	}
-
-	ioResponse.Header().Add("Content-Type", "application/json; charset=utf-8")
-
-	ioResponse.Write(lvBody)
-
-	fmt.Print("OK")
-
-}
-
-func returnSignal(ioResponse http.ResponseWriter, ioRequest *http.Request) {
-
-	fmt.Print("\n", time.Now().Format(time.RFC3339), ioRequest.Method, " Signal was requested - ")
-
-	ioResponse.Header().Add("Access-Control-Allow-Origin", "*")
-	ioResponse.Header().Add("Access-Control-Allow-Methods", "*")
-	ioResponse.Header().Add("Access-Control-Allow-Headers", "*")
-
-	if ioRequest.Method == http.MethodOptions {
-		return
-	}
-
-	lvBearerToken := ioRequest.Header.Get("Authorization")
-
-	if lvBearerToken == "" {
-		ioResponse.WriteHeader(http.StatusUnauthorized)
-		fmt.Print(http.StatusText(http.StatusUnauthorized))
-		return
-	}
-
-	loParameters := mux.Vars(ioRequest)
-
-	ltTickers := strings.Split(loParameters["ticker"], ",")
-
-	loAnalyzer := tinvestanalyser.Analyser{}
-
-	loAnalyzer.Init(lvBearerToken[7:])
-
-	ltSignals, loError := loAnalyzer.GetSignals(ltTickers)
-
-	if loError != nil {
-		ioResponse.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(ioResponse, "%v", loError)
-		fmt.Print(loError)
-		return
-	}
-
-	if len(ltSignals) == 0 {
-		ltSignals = make([]tinvestanalyser.Signal, 0)
-	}
-
-	lvBody, loError := json.Marshal(ltSignals)
-
-	if loError != nil {
-		ioResponse.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(ioResponse, "%v", loError)
-		fmt.Print(loError)
+		fmt.Println(loError)
 		return
 	}
 
@@ -203,8 +232,8 @@ func main() {
 
 	loRouter.HandleFunc("/", returnRoot).Methods(http.MethodGet)
 	loRouter.HandleFunc("/positions", returnPositions).Methods(http.MethodGet, http.MethodOptions)
+	loRouter.HandleFunc("/operations/{ticker}", returnOperations).Methods(http.MethodGet, http.MethodOptions)
 	loRouter.HandleFunc("/profit", returnProfit).Methods(http.MethodGet, http.MethodOptions)
-	loRouter.HandleFunc("/signal/{ticker}", returnSignal).Methods(http.MethodGet, http.MethodOptions)
 
 	log.Fatal(http.ListenAndServe(":8081", loRouter))
 
