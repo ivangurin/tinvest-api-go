@@ -9,6 +9,12 @@ github.com/ivangurin/tinvest-analyser-go v0.0.0-20210315150817-355ff78a9146 h1:j
 github.com/ivangurin/tinvest-analyser-go v0.0.0-20210315150817-355ff78a9146/go.mod h1:Oc4T0XzwpwZN1jnlaft+B9FcYmlQHlIOy4hg1BcOHhM=
 github.com/ivangurin/tinvest-analyser-go v0.0.0-20210323125335-3eaaece877e4 h1:5kKaA/94S597fiYlfpyuh27B/ufLRSbLvfbQ5dfKJCQ=
 github.com/ivangurin/tinvest-analyser-go v0.0.0-20210323125335-3eaaece877e4/go.mod h1:/Br4UxuM2EVL8UBRRIYdDb8uENDkKCRu0fvcbdCJHXI=
+github.com/ivangurin/tinvest-analyser-go v0.0.0-20210326114236-8d290b632300 h1:e/n91gqd0ZJCQpSv679Vum3FPBx7VGF59TvPXWf1a24=
+github.com/ivangurin/tinvest-analyser-go v0.0.0-20210326114236-8d290b632300/go.mod h1:/Br4UxuM2EVL8UBRRIYdDb8uENDkKCRu0fvcbdCJHXI=
+github.com/ivangurin/tinvest-analyser-go v0.0.0-20210326120738-3a367284e75e h1:7diMWx06vfCJAU99kMCJEjUZzYf46glI5zSBPWByZNU=
+github.com/ivangurin/tinvest-analyser-go v0.0.0-20210326120738-3a367284e75e/go.mod h1:/Br4UxuM2EVL8UBRRIYdDb8uENDkKCRu0fvcbdCJHXI=
+github.com/ivangurin/tinvest-analyser-go v0.0.0-20210326124013-1016122f94ce h1:1NFAxYSb4mF2JZb0dizcd+fIVA/Kztf6BhrqL6BUKos=
+github.com/ivangurin/tinvest-analyser-go v0.0.0-20210326124013-1016122f94ce/go.mod h1:/Br4UxuM2EVL8UBRRIYdDb8uENDkKCRu0fvcbdCJHXI=
 github.com/ivangurin/tinvest-client-go v0.0.0-20210312091405-ec6160152a4f/go.mod h1:sqP4JqysfObhLBSzvdL/XGmupx2PSOAGKk/SjQbugr0=
 github.com/ivangurin/tinvest-client-go v0.0.0-20210319111121-71f24d0e8a8d h1:+3sXFTz9gYmkhG5OHG0LxFWLIN11aVKSY6VORE6n+CA=
 github.com/ivangurin/tinvest-client-go v0.0.0-20210319111121-71f24d0e8a8d/go.mod h1:sqP4JqysfObhLBSzvdL/XGmupx2PSOAGKk/SjQbugr0=
