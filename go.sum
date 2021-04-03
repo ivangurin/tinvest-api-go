@@ -17,6 +17,10 @@ github.com/ivangurin/tinvest-analyser-go v0.0.0-20210326124013-1016122f94ce h1:1
 github.com/ivangurin/tinvest-analyser-go v0.0.0-20210326124013-1016122f94ce/go.mod h1:/Br4UxuM2EVL8UBRRIYdDb8uENDkKCRu0fvcbdCJHXI=
 github.com/ivangurin/tinvest-analyser-go v0.0.0-20210403112514-f05773b703b8 h1:cmvu+2HzT2XjbetH51d+j8+Bt+9o3Xg/oX5mVs0IzRE=
 github.com/ivangurin/tinvest-analyser-go v0.0.0-20210403112514-f05773b703b8/go.mod h1:Q0w9yb6maI66t8+hjQLhX7k6GlqPKnnwBRUVzHjYvWA=
+github.com/ivangurin/tinvest-analyser-go v0.0.0-20210403123126-aa063c598196 h1:bc4KqHYyYNC98JhvI7D4w5sIqIscdgIX+chwCAInxQg=
+github.com/ivangurin/tinvest-analyser-go v0.0.0-20210403123126-aa063c598196/go.mod h1:dOR9jcXJtiFD9xlLH36zuhkhQnhhP9QhFLUSahMutsI=
+github.com/ivangurin/tinvest-analyser-go v0.0.0-20210403132347-f34f2defdb37 h1:uOqelH6Jke4FWIIq6Zg2Bo6dS1DhDW/f7FeHx/lX6p4=
+github.com/ivangurin/tinvest-analyser-go v0.0.0-20210403132347-f34f2defdb37/go.mod h1:zvBUJogdpbLWZHTJKppsLg36FXFwg0PZjP72NomPgAs=
 github.com/ivangurin/tinvest-client-go v0.0.0-20210312091405-ec6160152a4f/go.mod h1:sqP4JqysfObhLBSzvdL/XGmupx2PSOAGKk/SjQbugr0=
 github.com/ivangurin/tinvest-client-go v0.0.0-20210319111121-71f24d0e8a8d h1:+3sXFTz9gYmkhG5OHG0LxFWLIN11aVKSY6VORE6n+CA=
 github.com/ivangurin/tinvest-client-go v0.0.0-20210319111121-71f24d0e8a8d/go.mod h1:sqP4JqysfObhLBSzvdL/XGmupx2PSOAGKk/SjQbugr0=
